@@ -1,5 +1,3 @@
-
-
 # for the following functions
 # input type: int(gvkey)
 def get_company_full_name():
@@ -68,4 +66,4 @@ def get_history_tech_ind():
     Example: {'MA':70, "EMA": ..}    
     
     '''
->>>>>>> 45eb0a2acaa1bac87eaf85e1cf8b0c3a20b05929
+    pass
