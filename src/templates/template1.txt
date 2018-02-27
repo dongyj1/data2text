@@ -1,0 +1,3 @@
+{company_name} is trading at {price_in_dollar} with an average volume of {volume_in_million} . The stock opened at {start_price} and closed at {close_price} upon the closing bell.
+
+The stock is trading {ahead_or_behind} it 52-week low with {increase_or_decrease} of {trading_change_in_percent}. The share price has moved {forward_backward} from its {period_days} days moving average of {average_price} at a distance of {distance_percentage}. For last {last_trading_days} trading day, the stock is {pulling_away_or_closer} from its 30 day moving average of {30_days_average} at a distance of {30_days_distance}.
