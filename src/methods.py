@@ -22,10 +22,12 @@ def get_company_hq():
     '''
     pass
 
-def get_today_prices():
+def get_today_price():
     '''
     return type: dict
     Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
+    Note: This function can also be realized by calling get_history_price() and
+    assigning today's date. 
     '''
     pass
 
@@ -33,7 +35,10 @@ def get_today_prices():
 #--------------------------------------------------------------------
 from datetime import datetime
 def datestr2date(datestr):
-    """ two allowed format: "20170202" or "2017-02-02" """
+    '''
+    two allowed format: "20170202" or "2017-02-02"
+    return type: datetime object (date)
+    '''
     try:
         return datetime.strptime(datestr, "%Y%m%d").date()
     except:
@@ -45,6 +50,20 @@ def datestr2date(datestr):
         return None
 
 #--------------------------------------------------------------------    
-# for the following functions
-# input type: int(gvkey), dateObject(defined as above)
-def get_today_prices()
+
+def get_history_price():
+    '''
+    input type: int(gvkey), dateObject(defined as above)
+    return type: dict
+    Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
+    '''
+    pass
+
+def get_history_tech_ind():
+    '''
+    'technical indicator'
+    input type: int(gvkey), dateObject(defined as above), 
+    return type: dict
+    Example: {'MA':70, "EMA": ..}    
+    
+    '''
