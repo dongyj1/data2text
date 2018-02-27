@@ -16,10 +16,11 @@ class Template():
             name = name[1:-1]
             if name == 'company_name':
                 method_to_call = getattr(methods, 'get_' + name)
-                para = method_to_call()
+                para = method_to_call(word="hi")
                 target = '{' + name + '}'
                 print(target + " " + para)
                 res = res.replace(target, para)
+
         return res
 
 
