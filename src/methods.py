@@ -60,9 +60,11 @@ def get_today_price(**kwargs):
     Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
     Note: This function can also be realized by calling get_history_price() and
     assigning today's date.
+    :author: dyj
     :return: dict
     """
     s = Schema({
+        Required('df'): pandas.DataFrame,
         Required('df'): pandas.DataFrame,
         'row_id': int
     })
@@ -71,6 +73,16 @@ def get_today_price(**kwargs):
 
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
+        df = kwargs['df']
+        row_id = int(kwargs['row_id'])
+        data = df.iloc[[row_id]]
+        dict_ = {'open': data['open'], 'high': data['high'], 'low': data['low'],'close': data['close'],
+                 'volume': data['volume']}
+        return dict_
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+    except TypeError as e:
+        print("TypeError: ".format(e.errors))
 
 
 # --------------------------------------------------------------------
@@ -86,12 +98,13 @@ def datestr2date(**kwargs):
         Required('datestr'):str
     })
     try:
-        datestr=s['datestr']
+        s(kwargs)
+        datestr=kwargs['datestr']
         return datetime.strptime(datestr, "%Y%m%d").date()
     except:
         pass
     try:
-        datestr = s['datestr']
+        datestr = kwargs['datestr']
         return datetime.strptime(datestr, "%Y-%m-%d").date()
     except MultipleInvalid as e:
         print(
@@ -114,14 +127,30 @@ def get_history_price(**kwargs):
         'gvkey':int
     })
     try:
-        df= s['df']
-        date_=s['date']
-        gvkey=s['gvkey']
+        s(kwargs)
+        df= kwargs['df']
+        date_=kwargs['date']
+        gvkey=kwargs['gvkey']
         df=df.loc[df['date']==date_ and df['gvkey']==gvkey]
         return dict(['open',df['open']],['high',df['high']],['low',df['low']],['close',df['close']],['volume',df['volume']])
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
         return None
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        'date': datetime
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        date_ = kwargs['date']
+        df = df.loc[df['date'] == date_]
+        return dict(['open', df['open']], ['high', df['high']], ['low', df['low']], ['close', df['close']],
+                    ['volume', df['volume']])
+    except MultipleInvalid as e:
+        print("error: input data is not valid".format(e.errors))
+        return None
+
 
 
 def MA(**kwargs):
@@ -135,8 +164,9 @@ def MA(**kwargs):
         'n': int
     })
     try:
-        df=s['df']
-        n=s['n']
+        s(kwargs)
+        df=kwargs['df']
+        n=kwargs['n']
         return df.rolling_mean(df['close'],n)
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
@@ -151,8 +181,9 @@ def EMA(**kwargs):
         'n': int
     })
     try:
-        df=s['df']
-        n=s['n']
+        s(kwargs)
+        df=kwargs['df']
+        n=kwargs['n']
         return df.ewma(df['close'],n)
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
@@ -167,8 +198,9 @@ def ROC(**kwargs):
         'n': int
     })
     try:
-        df=s['df']
-        n=s['n']
+        s(kwargs)
+        df=kwargs['df']
+        n=kwargs['n']
         return df['close'].diff(n-1)/df['close'].shift(n-1)
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
@@ -186,9 +218,10 @@ def get_history_tech_ind(**kwargs):
         'gvkey':int
     })
     try:
-        df=s['df']
-        date_=s['date']
-        gvkey=s['gvkey']
+        s(kwargs)
+        df=kwargs['df']
+        date_=kwargs['date']
+        gvkey=kwargs['gvkey']
         row_id=df[df['date']==date_ and df['gvkey']==gvkey].index
         return dict(['MA_7days',MA(df[row_id-6:row_id+1],row_id,7)],['MA_30days',MA(df[row_id-29:row_id+1],row_id,30)],['ROC_52week',ROC(df[row_id+52*7-1:row_id+1],row_id,52*7)])
     except MultipleInvalid as e:
@@ -206,9 +239,10 @@ def ahead_behind(**kwargs):
         'gvkey': int
     })
     try:
-        df = s['df']
-        date= s['date']
-        gvkey = s['gvkey']
+        s(kwargs)
+        df = kwargs['df']
+        date= kwargs['date']
+        gvkey = kwargs['gvkey']
         return "ahead" if get_history_tech_ind(df,date,gvkey)['ROC_52week'] >0 else "behind"
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
@@ -224,9 +258,10 @@ def increase_decrease(**kwargs):
         'gvkey': int
     })
     try:
-        df = s['df']
-        date= s['date']
-        gvkey = s['gvkey']
+        s(kwargs)
+        df = kwargs['df']
+        date= kwargs['date']
+        gvkey = kwargs['gvkey']
         return "increase" if get_history_tech_ind(gvkey,df,date)['ROC_52week']>0 else "decrease"
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
