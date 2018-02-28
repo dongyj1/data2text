@@ -34,7 +34,7 @@ if __name__ == "__main__":
     with open('./datasets/WIKI_PRICES.csv') as f:
         line = f.readline()
 
-    df = Pandas.read('vs.csv')
+    df = pandas.read('vs.csv')
     article = t.generate(df, row_id)
 
 

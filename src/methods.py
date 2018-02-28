@@ -25,6 +25,7 @@ def get_company_name(**kwargs):
         print("error: {} occur while parse with required args".format(e.errors))
 
 
+
 def get_company_tic(**kwargs):
     """
     Example: "MUR"
@@ -40,6 +41,7 @@ def get_company_tic(**kwargs):
         ticker = list(df.groupby('ticker')['ticker'].head(1))
         row_id = kwargs['row_id']
         return ticker[row_id]
+
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
@@ -59,7 +61,15 @@ def get_today_price(**kwargs):
     assigning today's date.
     :return: dict
     """
-    pass
+    s = Schema({
+        Required('df'): pandas.DataFrame,
+        'row_id': int
+    })
+    try:
+        s(kwargs)  # validate args
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
 
 # --------------------------------------------------------------------
