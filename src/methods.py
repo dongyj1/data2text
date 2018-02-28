@@ -2,25 +2,27 @@
 # input type: int(gvkey)
 
 from datetime import datetime
-import pandas
+import pandas as pd
 from voluptuous import Schema, Required, MultipleInvalid
 
 
-def get_company_full_name(**kwargs):
+def get_company_name(**kwargs):
     """
     Example: "Murphy Oil Corporation"
     :return: string (official full name)
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'row_id': int
     })
     try:
         s(kwargs) # validate args
         df = kwargs['df']
+        cpn_name = list(df.groupby('ticker')['Name'].head(1))
+        row_id = kwargs['row_id']
+        return cpn_name[row_id]
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
-
 
 
 def get_company_tic(**kwargs):
@@ -29,12 +31,15 @@ def get_company_tic(**kwargs):
     :return: string (ticker)
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'row_id': int
     })
     try:
-        s(kwargs)
-
+        s(kwargs)  # validate args
+        df = kwargs['df']
+        ticker = list(df.groupby('ticker')['ticker'].head(1))
+        row_id = kwargs['row_id']
+        return ticker[row_id]
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
@@ -106,3 +111,5 @@ def get_history_tech_ind(**kwargs):
     :return: dict
     """
     pass
+
+

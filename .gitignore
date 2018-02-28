@@ -1,2 +1,10 @@
 # ignore DS_Store
 .DS_Store
+# ignore idea setting files
+.idea/
+# ignore virtual environment packages
+venv/
+# ignore datasets
+src/datasets/
+# ignore my test file
+src/test.py
