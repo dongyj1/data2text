@@ -17,10 +17,10 @@ def get_company_full_name(**kwargs):
     })
     try:
         s(kwargs) # validate args
-        kwargs
+        df = kwargs['df']
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
-    pass
+
 
 
 def get_company_tic(**kwargs):
@@ -28,7 +28,15 @@ def get_company_tic(**kwargs):
     Example: "MUR"
     :return: string (ticker)
     """
-    pass
+    s = Schema({
+        Required('df'): pandas.DataFrame,
+        'row_id': int
+    })
+    try:
+        s(kwargs)
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
 
 def get_company_hq(**kwargs):
@@ -46,7 +54,15 @@ def get_today_price(**kwargs):
     assigning today's date.
     :return: dict
     """
-    pass
+    s = Schema({
+        Required('df'): pandas.DataFrame,
+        'row_id': int
+    })
+    try:
+        s(kwargs)  # validate args
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
 
 # --------------------------------------------------------------------
