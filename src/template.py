@@ -1,5 +1,6 @@
 import re
 from src import methods
+import pandas
 
 
 class Template():
@@ -10,13 +11,13 @@ class Template():
         self.text = t
         self.matches = re.findall('\{.*?\}', text)
 
-    def generate(self, row_id):
+    def generate(self, df, row_id):
         res = self.text
         for name in self.matches:
             name = name[1:-1]
             if name == 'company_name':
                 method_to_call = getattr(methods, 'get_' + name)
-                para = method_to_call(word="hi")
+                para = method_to_call(word="hi", df = df)
                 target = '{' + name + '}'
                 print(target + " " + para)
                 res = res.replace(target, para)
@@ -30,6 +31,14 @@ if __name__ == "__main__":
         text = f.read()
         t = Template(text)
     print(t.generate(1))
+    with open('./datasets/WIKI_PRICES.csv') as f:
+        line = f.readline()
+
+    df = Pandas.read('vs.csv')
+    article = t.generate(df, row_id)
+
+
+
 
 
 

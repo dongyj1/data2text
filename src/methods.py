@@ -2,17 +2,28 @@
 # input type: int(gvkey)
 
 from datetime import datetime
+import pandas
+from voluptuous import Schema, Required, MultipleInvalid
 
 
-def get_company_full_name():
+def get_company_full_name(**kwargs):
     """
     Example: "Murphy Oil Corporation"
     :return: string (official full name)
     """
+    s = Schema({
+        Required('df'): pandas.DataFrame,
+        'row_id': int
+    })
+    try:
+        s(kwargs) # validate args
+        kwargs
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
     pass
 
 
-def get_company_tic():
+def get_company_tic(**kwargs):
     """
     Example: "MUR"
     :return: string (ticker)
@@ -20,7 +31,7 @@ def get_company_tic():
     pass
 
 
-def get_company_hq():
+def get_company_hq(**kwargs):
     """
     Example: "Cambridge, MA"
     :return: string (headquarter)
@@ -28,7 +39,7 @@ def get_company_hq():
     pass
 
 
-def get_today_price():
+def get_today_price(**kwargs):
     """
     Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
     Note: This function can also be realized by calling get_history_price() and
@@ -41,7 +52,7 @@ def get_today_price():
 # --------------------------------------------------------------------
 
 
-def datestr2date(datestr):
+def datestr2date(**kwargs):
     """
     two allowed format: "20170202" or "2017-02-02"
     :param datestr:
@@ -62,7 +73,7 @@ def datestr2date(datestr):
 # --------------------------------------------------------------------
 
 
-def get_history_price():
+def get_history_price(**kwargs):
     """
     input type: int(gvkey), dateObject(defined as above)
     return type: dict
@@ -71,7 +82,7 @@ def get_history_price():
     pass
 
 
-def get_history_tech_ind():
+def get_history_tech_ind(**kwargs):
     """
     'technical indicator'
     input type: int(gvkey), dateObject(defined as above),
