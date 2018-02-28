@@ -35,7 +35,8 @@ if __name__ == "__main__":
         line = f.readline()
 
     df = pandas.read_csv('datasets/stock_prices_info.csv')
-    article = t.generate(df, row_id)
+    article = t.generate(df, 1)
+    print(article)
 
 
 

@@ -25,7 +25,6 @@ def get_company_name(**kwargs):
         print("error: {} occur while parse with required args".format(e.errors))
 
 
-
 def get_company_tic(**kwargs):
     """
     Example: "MUR"
