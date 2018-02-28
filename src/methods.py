@@ -23,10 +23,7 @@ def get_company_name(**kwargs):
         return cpn_name[row_id]
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
-<<<<<<< HEAD
-=======
 
->>>>>>> 78219dc21364956f2b55a8e6af9a4459dc057812
 
 
 def get_company_tic(**kwargs):
@@ -44,10 +41,6 @@ def get_company_tic(**kwargs):
         ticker = list(df.groupby('ticker')['ticker'].head(1))
         row_id = kwargs['row_id']
         return ticker[row_id]
-<<<<<<< HEAD
-=======
-
->>>>>>> 78219dc21364956f2b55a8e6af9a4459dc057812
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
@@ -65,23 +58,31 @@ def get_today_price(**kwargs):
     Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
     Note: This function can also be realized by calling get_history_price() and
     assigning today's date.
+    :author: dyj
     :return: dict
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'row_id': int
     })
     try:
         s(kwargs)  # validate args
-
+        df = kwargs['df']
+        row_id = int(kwargs['row_id'])
+        data = df.iloc[[row_id]]
+        dict_ = {'open': data['open'], 'high': data['high'], 'low': data['low'],'close': data['close'],
+                 'volume': data['volume']}
+        return dict_
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
+    except TypeError as e:
+        print("TypeError: ".format(e.errors))
 
 
 # --------------------------------------------------------------------
 
 
-def datestr2date(**kwargs):
+def datestr2date(datestr):
     """
     two allowed format: "20170202" or "2017-02-02"
     :param datestr:
@@ -109,7 +110,7 @@ def get_history_price(**kwargs):
     Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
     """
     s = Schema({
-        required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'date': datetime
     })
     try:
@@ -133,11 +134,7 @@ def get_history_tech_ind(**kwargs):
     Example: {'MA':70, "EMA": ..}
     :return: dict
     """
-<<<<<<< HEAD
-    pass
 
-
-=======
     s = Schema({
         required('df'): pandas.DataFrame,
         'date': datetime,
@@ -189,4 +186,4 @@ def get_history_tech_ind(**kwargs):
                     ['ROC_52week', ROC(df, row_id, 52 * 7)])
     except MultipleInvalid as e:
         print("error: input is not valid".format(e.errors))
->>>>>>> 78219dc21364956f2b55a8e6af9a4459dc057812
+
