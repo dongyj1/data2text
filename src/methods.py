@@ -64,20 +64,17 @@ def get_today_price(**kwargs):
     """
     s = Schema({
         Required('df'): pandas.DataFrame,
-        Required('df'): pandas.DataFrame,
-        'row_id': int
+        'row_id': int,
     })
     try:
         s(kwargs)  # validate args
-
-    except MultipleInvalid as e:
-        print("error: {} occur while parse with required args".format(e.errors))
         df = kwargs['df']
         row_id = int(kwargs['row_id'])
-        data = df.iloc[[row_id]]
-        dict_ = {'open': data['open'], 'high': data['high'], 'low': data['low'],'close': data['close'],
-                 'volume': data['volume']}
+        dict_ = {'open': str(df['open'][row_id]), 'high': str(df['high'][row_id]), 'low': str(df['low'][row_id]),
+                 'close': str(df['close'][row_id]), 'volume': str(df['volume'][row_id])}
         return dict_
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
     except TypeError as e:
@@ -87,18 +84,14 @@ def get_today_price(**kwargs):
 # --------------------------------------------------------------------
 
 
-def datestr2date(**kwargs):
+def datestr2date(datestr):
     """
     two allowed format: "20170202" or "2017-02-02"
     :param datestr:
     :return: datetime object (date)
     """
-    s=Schema({
-        Required('datestr'):str
-    })
     try:
-        s(kwargs)
-        datestr=kwargs['datestr']
+
         return datetime.strptime(datestr, "%Y%m%d").date()
     except:
         pass
