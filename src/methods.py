@@ -2,10 +2,31 @@
 # input type: int(gvkey)
 
 from datetime import datetime
-import pandas
-
+import pandas as pd
 from voluptuous import Schema, Required, MultipleInvalid
 
+
+# Currently we only cover S&P 500
+SP500_company_info = pd.read_csv('datasets/S&P500_2017.csv')
+#Russell3000_company_info = pd.read_csv('datasets/Russell3000_2017.csv')
+
+def get_company_city(comp_id):
+    """
+    Example input: 'aapl', 'AAPL', 1075, 28733
+    """
+    res = 0
+    if isinstance(comp_id, int):
+        res = SP500_company_info.loc[SP500_company_info['gvkey']==comp_id, 'city']
+    elif isinstance(comp_id, str):
+        res = SP500_company_info.loc[SP500_company_info['tic']==comp_id.upper(), 'city']
+    else:
+        print('error: input must be ticker(str) or gvkey(int) of a valid company')
+        return
+    if res.any():
+        return res.to_string(index=False)
+    else:
+        print('error: input must be ticker(str) or gvkey(int) of a valid company')
+        return
 
 def get_company_name(**kwargs):
     """
@@ -13,7 +34,7 @@ def get_company_name(**kwargs):
     :return: string (official full name)
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'row_id': int
     })
     try:
@@ -33,7 +54,7 @@ def get_company_tic(**kwargs):
     :return: string (ticker)
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'row_id': int
     })
     try:
@@ -64,8 +85,8 @@ def get_today_price(**kwargs):
     :return: dict
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
+        Required('df'): pd.DataFrame,
         'row_id': int
     })
     try:
@@ -122,7 +143,7 @@ def get_history_price(**kwargs):
     Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
     """
     s=Schema({
-        Required('df'):pandas.DataFrame,
+        Required('df'):pd.DataFrame,
         'date':datetime,
         'gvkey':int
     })
@@ -160,7 +181,7 @@ def MA(**kwargs):
     n represents # days
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'n': int
     })
     try:
@@ -177,7 +198,7 @@ def EMA(**kwargs):
     n represents # days
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'n': int
     })
     try:
@@ -194,7 +215,7 @@ def ROC(**kwargs):
     n represents # days
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'n': int
     })
     try:
@@ -212,7 +233,7 @@ def get_history_tech_ind(**kwargs):
     :return: dict
     """
     s=Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'date': datetime,
         'n':int,
         'gvkey':int
@@ -233,7 +254,7 @@ def ahead_behind(**kwargs):
     input type: int(gvkey)
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'date': datetime,
         'n': int,
         'gvkey': int
@@ -252,7 +273,7 @@ def increase_decrease(**kwargs):
     input type:int(gvkey)
     """
     s = Schema({
-        Required('df'): pandas.DataFrame,
+        Required('df'): pd.DataFrame,
         'date': datetime,
         'n': int,
         'gvkey': int
