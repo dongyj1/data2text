@@ -368,6 +368,72 @@ def get_increase_or_decrease(**kwargs):
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
+def get_forward_backward(**kwargs):
+    """
+    return increase or decrease
+    :param kwargs:
+    :return: str
+    hzy
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+        Required('n'):int
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        n=kwargs['n']
+        price=get_price_in_dollar(df,row_id)
+        n=get_period_days(n)
+        average=get_average_price(df,row_id,n)
+        out = 'forward' if price>average else 'backward'
+        return out
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+def get_period_days(**kwargs):
+    """
+    return  #days
+    :param int
+    :return: int
+    hzy
+    """
+    s = Schema({
+        Required('n'): int
+    })
+    try:
+        s(kwargs)
+        n=kwargs['n']
+        return n
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+def get_average_price(**kwargs):
+    """
+    Moving Average
+    input type: pandas.DataFrame(df),int(n),int(row_id)
+    return:float
+    n represents # days
+    hzy
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('n'): int,
+        Required('row_id'):int
+    })
+    try:
+        s(kwargs)
+        df=kwargs['df']
+        n=kwargs['n']
+        row_id=kwargs['row_id']
+        df=df.iloc[row_id-n+1:row_id+1]
+        sum=df['close'].sum()
+        return sum*1.0/n
+    except MultipleInvalid as e:
+        print("error: input data is not valid".format(e.errors))
+
 def get_history_price(**kwargs):
     """
     input type: int(gvkey), dateObject(defined as above)
@@ -377,7 +443,7 @@ def get_history_price(**kwargs):
     """
     s=Schema({
         Required('df'):pd.DataFrame,
-        Required('gvkey'):int
+        Required('gvkey'):int,
         Required('date'):datetime
 
     })
@@ -393,24 +459,7 @@ def get_history_price(**kwargs):
         return None
 
 
-def MA(**kwargs):
-    """
-    Moving Average
-    input type: pandas.DataFrame(df),int(n)
-    n represents # days
-    hzy
-    """
-    s = Schema({
-        Required('df'): pd.DataFrame,
-        'n': int
-    })
-    try:
-        s(kwargs)
-        df=kwargs['df']
-        n=kwargs['n']
-        return df.rolling_mean(df['close'],n)
-    except MultipleInvalid as e:
-        print("error: input data is not valid".format(e.errors))
+
 
 
 def EMA(**kwargs):
@@ -463,16 +512,17 @@ def get_history_tech_ind(**kwargs):
     """
     s=Schema({
         Required('df'): pd.DataFrame,
-        Required('gvkey'):int
+        Required('gvkey'):int,
         Required('date'):datetime
     })
     try:
         s(kwargs)
         df=kwargs['df']
-        gvkey=kwargs['gvkey']
         date=kwargs['date']
+        gvkey=kwargs['gvkey']
         df=df.iloc[df['gvkey']==gvkey and df['date']==date]
-        return dict(['MA_7days',MA(df[row_id-6:row_id+1],row_id,7)],['MA_30days',MA(df[row_id-29:row_id+1],row_id,30)],['ROC_52week',ROC(df[row_id+52*7-1:row_id+1],row_id,52*7)])
+        row_id=df.index
+        return dict(['MA_7days',get_average_price(df,row_id,7)],['MA_30days',get_average_price(df,row_id,30)],['ROC_52week',ROC(df[row_id+52*7-1:row_id+1],row_id,52*7)])
     except MultipleInvalid as e:
         print("error: input is not valid".format(e.errors))
 
