@@ -429,8 +429,8 @@ def get_average_price(**kwargs):
         n=kwargs['n']
         row_id=kwargs['row_id']
         df=df.iloc[row_id-n+1:row_id+1]
-        sum=df['close'].sum()
-        return sum*1.0/n
+        summ=df['close'].sum()
+        return summ*1.0/n
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
 
