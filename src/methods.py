@@ -250,20 +250,28 @@ def get_today_price(**kwargs):
 # --------------------------------------------------------------------
 
 
-def datestr2date(datestr):
+def datestr2date(**kwargs):
     """
     two allowed format: "20170202" or "2017-02-02"
     :param datestr:
     :return: datetime object (date)
     """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
     try:
-
+        s(kwargs)
+        df=s['df']
+        row_id=s['row_id']
+        datestr=df.iloc[row_id]['date']
         return datetime.strptime(datestr, "%Y%m%d").date()
     except:
         pass
     try:
         datestr = kwargs['datestr']
         return datetime.strptime(datestr, "%Y-%m-%d").date()
+
     except MultipleInvalid as e:
         print(
             "Error: input date string must be a valid date in two of the following formats: 'YYYYMMDD' or 'YYYY-MM-DD'".format(e.errors))
@@ -271,7 +279,47 @@ def datestr2date(datestr):
 
 
 # --------------------------------------------------------------------
+def get_trading_change_in_percent(**kwargs):
+    """
+    52-week low with trading change in percent
+    input type: int(gvkey), dateObject(defined as above)
+    return type: float
+    Example: 0.2
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        curr_date=df['date']
+        curr_low=float(df['low'])
+        former_date=curr_date.datetime.now()-datetime.timedelta(days=365)
+        former_low=float(df.iloc['date'==former_date and 'ticker'==df.iloc[row_id]['ticker']])
+        return 1-(curr_low/former_low) if curr_low<former_low else curr_low/former_low-1
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
+
+def get_increase_or_decrease(**kwargs):
+    """
+    return increase or decrease based on ahead or behind
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        close_price = df.iloc[row_id]['close']
+        return close_price
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
 def get_history_price(**kwargs):
     """
