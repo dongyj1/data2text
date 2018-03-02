@@ -373,18 +373,20 @@ def get_history_price(**kwargs):
     input type: int(gvkey), dateObject(defined as above)
     return type: dict
     Example: {'open': 15, 'high': 16, 'low':14, 'close':15.5, 'volume': 154640}
+    hzy
     """
     s=Schema({
         Required('df'):pd.DataFrame,
-        'date':datetime,
-        'gvkey':int
+        Required('gvkey'):int
+        Required('date'):datetime
+
     })
     try:
         s(kwargs)
         df = kwargs['df']
-        date_= kwargs['date']
-        gvkey = kwargs['gvkey']
-        df = df.loc[df['date']==date_ and df['gvkey'] == gvkey]
+        gvkey=kwargs['gvkey']
+        date=kwargs['date']
+        df=df.iloc[df['gvkey']==gvkey and df['date']==date]
         return dict(['open', df['open']],['high',df['high']],['low',df['low']],['close', df['close']],['volume', df['volume']])
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
@@ -396,6 +398,7 @@ def MA(**kwargs):
     Moving Average
     input type: pandas.DataFrame(df),int(n)
     n represents # days
+    hzy
     """
     s = Schema({
         Required('df'): pd.DataFrame,
@@ -415,6 +418,7 @@ def EMA(**kwargs):
     ExponentialMoving Average
     input type: pandas.DataFrame(df),int(n)
     n represents # days
+    hzy
     """
     s = Schema({
         Required('df'): pd.DataFrame,
@@ -434,6 +438,7 @@ def ROC(**kwargs):
     Rate of Change
     input type: pandas.DataFrame(df),int(n)
     n represents # days
+    hzy
     """
     s = Schema({
         Required('df'): pd.DataFrame,
@@ -450,23 +455,23 @@ def ROC(**kwargs):
 
 def get_history_tech_ind(**kwargs):
     """
-    'technical indicator'
+    return 7 days moving average, 30days moving average, 52 week rate of change
     input type: int(gvkey), dateObject(defined as above)
     Example: {'MA':70, "EMA": ..}
     :return: dict
+    hzy
     """
     s=Schema({
         Required('df'): pd.DataFrame,
-        'date': datetime,
-        'n':int,
-        'gvkey':int
+        Required('gvkey'):int
+        Required('date'):datetime
     })
     try:
         s(kwargs)
         df=kwargs['df']
-        date_=kwargs['date']
         gvkey=kwargs['gvkey']
-        row_id=df[df['date']==date_ and df['gvkey']==gvkey].index
+        date=kwargs['date']
+        df=df.iloc[df['gvkey']==gvkey and df['date']==date]
         return dict(['MA_7days',MA(df[row_id-6:row_id+1],row_id,7)],['MA_30days',MA(df[row_id-29:row_id+1],row_id,30)],['ROC_52week',ROC(df[row_id+52*7-1:row_id+1],row_id,52*7)])
     except MultipleInvalid as e:
         print("error: input is not valid".format(e.errors))
