@@ -169,28 +169,28 @@ def get_close_price(**kwargs):
         print("error: {} occur while parse with required args".format(e.errors))
 
 
-def get_ahead_or_behind(**kwargs):
-    """
-     return ahead or behind
-
-    :author: dyj
-    :param kwargs:
-    :return: 'ahead'/'behind'
-    """
-    # param validation
-    s = Schema({
-        Required('df'): pd.DataFrame,
-        Required('row_id'): int,
-    })
-    try:
-        s(kwargs)
-        df = kwargs['df']
-        row_id = kwargs['row_id']
-        close_price = df.iloc[row_id]['close']
-        return close_price
-
-    except MultipleInvalid as e:
-        print("error: {} occur while parse with required args".format(e.errors))
+#def get_ahead_or_behind(**kwargs):
+#    """
+#     return ahead or behind
+#
+#    :author: dyj
+#    :param kwargs:
+#    :return: 'ahead'/'behind'
+#    """
+#    # param validation
+#    s = Schema({
+#        Required('df'): pd.DataFrame,
+#        Required('row_id'): int,
+#    })
+#    try:
+#        s(kwargs)
+#        df = kwargs['df']
+#        row_id = kwargs['row_id']
+#        close_price = df.iloc[row_id]['close']
+#        return close_price
+#
+#    except MultipleInvalid as e:
+#        print("error: {} occur while parse with required args".format(e.errors))
 
 def get_company_tic(**kwargs):
     """
