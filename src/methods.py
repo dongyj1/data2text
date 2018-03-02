@@ -385,8 +385,7 @@ def get_forward_backward(**kwargs):
         df = kwargs['df']
         row_id = kwargs['row_id']
         n=kwargs['n']
-        price=get_price_in_dollar(df,row_id)
-        n=get_period_days(n)
+        price=float(get_price_in_dollar(df,row_id))
         average=get_average_price(df,row_id,n)
         out = 'forward' if price>average else 'backward'
         return out
@@ -397,7 +396,7 @@ def get_period_days(**kwargs):
     """
     return  #days
     :param int
-    :return: int
+    :return: str
     hzy
     """
     s = Schema({
@@ -406,7 +405,7 @@ def get_period_days(**kwargs):
     try:
         s(kwargs)
         n=kwargs['n']
-        return n
+        return str(n)
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
@@ -433,6 +432,32 @@ def get_average_price(**kwargs):
         return summ*1.0/n
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
+
+def get_distance_percentage(**kwargs):
+    """
+    Distance percentage
+    input type: pandas.DataFrame(df),int(n),int(row_id)
+    return:float
+    n represents # days
+    hzy
+        """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('n'): int,
+        Required('row_id'): int
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        n = kwargs['n']
+        row_id = kwargs['row_id']
+        price = get_price_in_dollar(df, row_id)
+        average = get_average_price(df, row_id, n)
+        dis=price-average if price-average>0 else average-price
+        return dis
+    except MultipleInvalid as e:
+        print("error: input data is not valid".format(e.errors))
+
 
 def get_history_price(**kwargs):
     """
