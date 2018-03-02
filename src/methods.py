@@ -4,11 +4,11 @@
 from datetime import datetime
 import pandas as pd
 from voluptuous import Schema, Required, MultipleInvalid
+import num2words
 
 
 # Currently we only cover S&P 500
-SP500_company_info = pd.read_csv('datasets/S&P500_2017.csv')
-#Russell3000_company_info = pd.read_csv('datasets/Russell3000_2017.csv')
+company_info = pd.read_csv('./datasets/company_name_city.csv')
 
 
 def get_company_city(comp_id):
@@ -29,24 +29,168 @@ def get_company_city(comp_id):
         print('error: input must be ticker(str) or gvkey(int) of a valid company')
         return
 
+
+# def get_company_name(**kwargs):
+#     """
+#     Example: "Murphy Oil Corporation"
+#     :return: string (official full name)
+#     """
+#     s = Schema({
+#         Required('df'): pd.DataFrame,
+#         'row_id': int
+#     })
+#     try:
+#         s(kwargs) # validate args
+#         df = kwargs['df']
+#         cpn_name = list(df.groupby('ticker')['Name'].head(1))
+#         row_id = kwargs['row_id']
+#         return cpn_name[row_id]
+#     except MultipleInvalid as e:
+#         print("error: {} occur while parse with required args".format(e.errors))
+
+
 def get_company_name(**kwargs):
     """
-    Example: "Murphy Oil Corporation"
-    :return: string (official full name)
+    return company full name in company_info from ticker in stock_prices.csv
+
+    :author: dyj
+    :param kwargs:
+    :return:
     """
+    # param validation
     s = Schema({
-        Required('df'): pd.DataFrame,
-        'row_id': int
+            Required('df'): pd.DataFrame,
+            Required('row_id'): int,
     })
     try:
-        s(kwargs) # validate args
+        s(kwargs)
         df = kwargs['df']
-        cpn_name = list(df.groupby('ticker')['Name'].head(1))
         row_id = kwargs['row_id']
-        return cpn_name[row_id]
+        ticker = df.iloc[row_id]['ticker']
+        fullname = company_info.loc[company_info['tic'] == ticker]['conml'].name
+        return fullname
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
+
+def get_price_in_dollar(**kwargs):
+    """
+    return close price in stock_prices.csv
+
+    :author: dyj
+    :param kwargs:
+    :return:
+    """
+    # param validation
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        close_price = df.iloc[row_id]['close']
+        return close_price
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+
+def get_volume_in_million(**kwargs):
+    """
+    return volume in million in stock_prices.csv
+
+    :author: dyj
+    :param kwargs:
+    :return: str
+    """
+    # param validation
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        volume_num = int(df.iloc[row_id]['volume'])
+        volume_str = "{0:.2f}".format(volume_num / 1000000, 2)
+        return volume_str + ' million'
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+
+def get_start_price(**kwargs):
+    """
+    return start price in stock_prices.csv
+
+    :author: dyj
+    :param kwargs:
+    :return:
+    """
+    # param validation
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        start_price = df.iloc[row_id]['open']
+        return start_price
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+
+def get_close_price(**kwargs):
+    """
+    return close price
+
+    :author: dyj
+    :param kwargs:
+    :return:
+    """
+    # param validation
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        close_price = df.iloc[row_id]['close']
+        return close_price
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+
+def get_ahead_or_behind(**kwargs):
+    """
+    return ahead or behind
+
+    :author: dyj
+    :param kwargs:
+    :return: 'ahead'/'behind'
+    """
+    # param validation
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        close_price = df.iloc[row_id]['close']
+        return close_price
+
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
 def get_company_tic(**kwargs):
     """
@@ -146,7 +290,7 @@ def get_history_price(**kwargs):
         date_= kwargs['date']
         gvkey = kwargs['gvkey']
         df = df.loc[df['date']==date_ and df['gvkey'] == gvkey]
-        return dict(['open',df['open']],['high',df['high']],['low',df['low']],['close',df['close']],['volume',df['volume']])
+        return dict(['open', df['open']],['high',df['high']],['low',df['low']],['close', df['close']],['volume', df['volume']])
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
         return None
@@ -249,7 +393,7 @@ def ahead_behind(**kwargs):
         df = kwargs['df']
         date= kwargs['date']
         gvkey = kwargs['gvkey']
-        return "ahead" if get_history_tech_ind(df,date,gvkey)['ROC_52week'] >0 else "behind"
+        return "ahead" if get_history_tech_ind(df, date, gvkey)['ROC_52week'] > 0 else "behind"
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
 

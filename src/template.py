@@ -1,6 +1,6 @@
 import re
 from src import methods
-import pandas
+import pandas as pd
 
 
 class Template():
@@ -14,13 +14,11 @@ class Template():
     def generate(self, df, row_id):
         res = self.text
         for name in self.matches:
-            name = name[1:-1]
-            if name == 'company_name':
-                method_to_call = getattr(methods, 'get_' + name)
-                para = method_to_call(word="hi", df = df)
-                target = '{' + name + '}'
-                print(target + " " + para)
-                res = res.replace(target, para)
+            target = name[1:-1]
+            method_to_call = getattr(methods, 'get_' + target)
+            para = method_to_call(df=df, row_id=row_id)
+            print(name, para)
+            res = res.replace(name, str(para))
 
         return res
 
@@ -30,11 +28,8 @@ if __name__ == "__main__":
     with open('./templates/template1.txt', 'r') as f:
         text = f.read()
         t = Template(text)
-    print(t.generate(1))
-    with open('./datasets/WIKI_PRICES.csv') as f:
-        line = f.readline()
 
-    df = pandas.read_csv('datasets/stock_prices_info.csv')
+    df = pd.read_csv('./datasets/stock_prices.csv')
     article = t.generate(df, 1)
     print(article)
 
