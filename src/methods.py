@@ -298,7 +298,7 @@ def get_trading_change_in_percent(**kwargs):
         res=trading_change(df,row_id)
         res=res if res>=0 else -res
         res=res*100
-        return str(res)+'%'
+        return str(res)+"%"
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
@@ -451,13 +451,95 @@ def get_distance_percentage(**kwargs):
         df = kwargs['df']
         n = kwargs['n']
         row_id = kwargs['row_id']
-        price = get_price_in_dollar(df, row_id)
+        price = float(get_price_in_dollar(df, row_id))
         average = get_average_price(df, row_id, n)
         dis=price-average if price-average>0 else average-price
-        return dis
+        return str(dis*100.0/average)+"%"
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
+def get_last_trading_days(**kwargs):
+    """
+    return  # trading days
+    :param int
+    :return: str
+    hzy
+    """
+    s = Schema({
+        Required('n'): int
+    })
+    try:
+        s(kwargs)
+        n = kwargs['n']
+        return str(n)
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
+def get_pulling_away_or_closer(**kwargs):
+    """
+    return pulling away or closer
+    :param kwargs:
+    :return: str
+    hzy
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        price = float(get_price_in_dollar(df, row_id))
+        average = get_30_days_average(df,row_id)
+        out = 'pulling away' if price < average else 'closer'
+        return out
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+
+def get_30_days_average(**kwargs):
+    """
+    Moving Average in 30 days
+    input type: pandas.DataFrame(df),int(row_id)
+    return:float
+    hzy
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        n = 30
+        row_id = kwargs['row_id']
+        df = df.iloc[row_id - n + 1:row_id + 1]
+        summ = df['close'].sum()
+        return summ * 1.0 / n
+    except MultipleInvalid as e:
+        print("error: input data is not valid".format(e.errors))
+def get_30_days_distance(**kwargs):
+    """
+    30 days Distance percentage
+    input type: pandas.DataFrame(df),int(row_id)
+    return:float
+    hzy
+        """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        n = 30
+        row_id = kwargs['row_id']
+        price = float(get_price_in_dollar(df, row_id))
+        average = get_30_days_average(df,row_id)
+        dis=price-average if price-average>0 else average-price
+        return str(dis*100.0/average)+"%"
+    except MultipleInvalid as e:
+        print("error: input data is not valid".format(e.errors))
 
 def get_history_price(**kwargs):
     """
@@ -482,10 +564,6 @@ def get_history_price(**kwargs):
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
         return None
-
-
-
-
 
 def EMA(**kwargs):
     """
