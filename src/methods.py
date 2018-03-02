@@ -171,7 +171,7 @@ def get_close_price(**kwargs):
 
 def get_ahead_or_behind(**kwargs):
     """
-    return ahead or behind
+     return ahead or behind
 
     :author: dyj
     :param kwargs:
@@ -282,9 +282,10 @@ def datestr2date(**kwargs):
 def get_trading_change_in_percent(**kwargs):
     """
     52-week low with trading change in percent
-    input type: int(gvkey), dateObject(defined as above)
-    return type: float
+    :param kwargs:
+    :return: str(percentage)
     Example: 0.2
+    hzy
     """
     s = Schema({
         Required('df'): pd.DataFrame,
@@ -294,18 +295,20 @@ def get_trading_change_in_percent(**kwargs):
         s(kwargs)
         df = kwargs['df']
         row_id = kwargs['row_id']
-        curr_date=df['date']
-        curr_low=float(df['low'])
-        former_date=curr_date.datetime.now()-datetime.timedelta(days=365)
-        former_low=float(df.iloc['date'==former_date and 'ticker'==df.iloc[row_id]['ticker']])
-        return 1-(curr_low/former_low) if curr_low<former_low else curr_low/former_low-1
+        res=trading_change(df,row_id)
+        res=res if res>=0 else -res
+        res=res*100
+        return str(res)+'%'
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
 
-def get_increase_or_decrease(**kwargs):
+def trading_change(**kwargs):
     """
-    return increase or decrease based on ahead or behind
+    return the value of trading_change
+    :param kwargs:
+    :return: float
+    hzy
     """
     s = Schema({
         Required('df'): pd.DataFrame,
@@ -315,9 +318,53 @@ def get_increase_or_decrease(**kwargs):
         s(kwargs)
         df = kwargs['df']
         row_id = kwargs['row_id']
-        close_price = df.iloc[row_id]['close']
-        return close_price
+        curr_date = df['date']
+        curr_low = float(df['low'])
+        former_date = curr_date.datetime.now() - datetime.timedelta(days=365)
+        former_low = float(df.iloc['date' == former_date and 'ticker' == df.iloc[row_id]['ticker']])
+        return 1-(curr_low/former_low)
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
 
+def get_ahead_or_behind(**kwargs):
+    """
+     return ahead or behind
+    :param kwargs:
+    :return: str
+    hzy
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        res = trading_change(df, row_id)
+        out='ahead' if res<0 else 'behind'
+        return out
+    except MultipleInvalid as e:
+        print("error: {} occur while parse with required args".format(e.errors))
+
+def get_increase_or_decrease(**kwargs):
+    """
+     return increase or decrease
+    :param kwargs:
+    :return: str
+    hzy
+    """
+    s = Schema({
+        Required('df'): pd.DataFrame,
+        Required('row_id'): int,
+    })
+    try:
+        s(kwargs)
+        df = kwargs['df']
+        row_id = kwargs['row_id']
+        res = trading_change(df, row_id)
+        out='increase' if res<0 else 'decrease'
+        return out
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
@@ -425,43 +472,3 @@ def get_history_tech_ind(**kwargs):
         print("error: input is not valid".format(e.errors))
 
 
-def ahead_behind(**kwargs):
-    """
-    select ahead or behind
-    input type: int(gvkey)
-    """
-    s = Schema({
-        Required('df'): pd.DataFrame,
-        'date': datetime,
-        'n': int,
-        'gvkey': int
-    })
-    try:
-        s(kwargs)
-        df = kwargs['df']
-        date= kwargs['date']
-        gvkey = kwargs['gvkey']
-        return "ahead" if get_history_tech_ind(df, date, gvkey)['ROC_52week'] > 0 else "behind"
-    except MultipleInvalid as e:
-        print("error: input data is not valid".format(e.errors))
-
-
-def increase_decrease(**kwargs):
-    """
-    select increase or decrease
-    input type:int(gvkey)
-    """
-    s = Schema({
-        Required('df'): pd.DataFrame,
-        'date': datetime,
-        'n': int,
-        'gvkey': int
-    })
-    try:
-        s(kwargs)
-        df = kwargs['df']
-        date= kwargs['date']
-        gvkey = kwargs['gvkey']
-        return "increase" if get_history_tech_ind(gvkey,df,date)['ROC_52week']>0 else "decrease"
-    except MultipleInvalid as e:
-        print("error: input data is not valid".format(e.errors))
