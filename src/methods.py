@@ -321,7 +321,7 @@ def trading_change(**kwargs):
         curr_date = df['date']
         curr_low = float(df['low'])
         former_date = curr_date.datetime.now() - datetime.timedelta(days=365)
-        former_low = float(df.iloc['date' == former_date and 'ticker' == df.iloc[row_id]['ticker']])
+        former_low = float(df.loc[df['date'] == former_date and df['ticker'] == df.iloc[row_id]['ticker'],'low'])
         return 1-(curr_low/former_low)
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
@@ -536,7 +536,7 @@ def get_30_days_distance(**kwargs):
         row_id = kwargs['row_id']
         price = float(get_price_in_dollar(df, row_id))
         average = get_30_days_average(df,row_id)
-        dis=price-average if price-average>0 else average-price
+        dis=price-average if price-average>=0 else average-price
         return str(dis*100.0/average)+"%"
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
@@ -559,74 +559,74 @@ def get_history_price(**kwargs):
         df = kwargs['df']
         gvkey=kwargs['gvkey']
         date=kwargs['date']
-        df=df.iloc[df['gvkey']==gvkey and df['date']==date]
+        df=df.loc[df['gvkey']==gvkey and df['date']==date]
         return dict(['open', df['open']],['high',df['high']],['low',df['low']],['close', df['close']],['volume', df['volume']])
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
         return None
 
-def EMA(**kwargs):
-    """
-    ExponentialMoving Average
-    input type: pandas.DataFrame(df),int(n)
-    n represents # days
-    hzy
-    """
-    s = Schema({
-        Required('df'): pd.DataFrame,
-        'n': int
-    })
-    try:
-        s(kwargs)
-        df=kwargs['df']
-        n=kwargs['n']
-        return df.ewma(df['close'],n)
-    except MultipleInvalid as e:
-        print("error: input data is not valid".format(e.errors))
-
-
-def ROC(**kwargs):
-    """
-    Rate of Change
-    input type: pandas.DataFrame(df),int(n)
-    n represents # days
-    hzy
-    """
-    s = Schema({
-        Required('df'): pd.DataFrame,
-        'n': int
-    })
-    try:
-        s(kwargs)
-        df=kwargs['df']
-        n=kwargs['n']
-        return df['close'].diff(n-1)/df['close'].shift(n-1)
-    except MultipleInvalid as e:
-        print("error: input data is not valid".format(e.errors))
-
-
-def get_history_tech_ind(**kwargs):
-    """
-    return 7 days moving average, 30days moving average, 52 week rate of change
-    input type: int(gvkey), dateObject(defined as above)
-    Example: {'MA':70, "EMA": ..}
-    :return: dict
-    hzy
-    """
-    s=Schema({
-        Required('df'): pd.DataFrame,
-        Required('gvkey'):int,
-        Required('date'):datetime
-    })
-    try:
-        s(kwargs)
-        df=kwargs['df']
-        date=kwargs['date']
-        gvkey=kwargs['gvkey']
-        df=df.iloc[df['gvkey']==gvkey and df['date']==date]
-        row_id=df.index
-        return dict(['MA_7days',get_average_price(df,row_id,7)],['MA_30days',get_average_price(df,row_id,30)],['ROC_52week',ROC(df[row_id+52*7-1:row_id+1],row_id,52*7)])
-    except MultipleInvalid as e:
-        print("error: input is not valid".format(e.errors))
+# def EMA(**kwargs):
+#     """
+#     ExponentialMoving Average
+#     input type: pandas.DataFrame(df),int(n)
+#     n represents # days
+#     hzy
+#     """
+#     s = Schema({
+#         Required('df'): pd.DataFrame,
+#         'n': int
+#     })
+#     try:
+#         s(kwargs)
+#         df=kwargs['df']
+#         n=kwargs['n']
+#         return df.ewma(df['close'],n)
+#     except MultipleInvalid as e:
+#         print("error: input data is not valid".format(e.errors))
+#
+#
+# def ROC(**kwargs):
+#     """
+#     Rate of Change
+#     input type: pandas.DataFrame(df),int(n)
+#     n represents # days
+#     hzy
+#     """
+#     s = Schema({
+#         Required('df'): pd.DataFrame,
+#         'n': int
+#     })
+#     try:
+#         s(kwargs)
+#         df=kwargs['df']
+#         n=kwargs['n']
+#         return df['close'].diff(n-1)/df['close'].shift(n-1)
+#     except MultipleInvalid as e:
+#         print("error: input data is not valid".format(e.errors))
+#
+#
+# def get_history_tech_ind(**kwargs):
+#     """
+#     return 7 days moving average, 30days moving average, 52 week rate of change
+#     input type: int(gvkey), dateObject(defined as above)
+#     Example: {'MA':70, "EMA": ..}
+#     :return: dict
+#     hzy
+#     """
+#     s=Schema({
+#         Required('df'): pd.DataFrame,
+#         Required('gvkey'):int,
+#         Required('date'):datetime
+#     })
+#     try:
+#         s(kwargs)
+#         df=kwargs['df']
+#         date=kwargs['date']
+#         gvkey=kwargs['gvkey']
+#         df=df.iloc[df['gvkey']==gvkey and df['date']==date]
+#         row_id=df.index
+#         return dict(['MA_7days',get_average_price(df,row_id,7)],['MA_30days',get_average_price(df,row_id,30)],['ROC_52week',ROC(df[row_id+52*7-1:row_id+1],row_id,52*7)])
+#     except MultipleInvalid as e:
+#         print("error: input is not valid".format(e.errors))
 
 
