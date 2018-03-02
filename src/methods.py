@@ -10,6 +10,7 @@ from voluptuous import Schema, Required, MultipleInvalid
 SP500_company_info = pd.read_csv('datasets/S&P500_2017.csv')
 #Russell3000_company_info = pd.read_csv('datasets/Russell3000_2017.csv')
 
+
 def get_company_city(comp_id):
     """
     Example input: 'aapl', 'AAPL', 1075, 28733
@@ -141,29 +142,14 @@ def get_history_price(**kwargs):
     })
     try:
         s(kwargs)
-        df= kwargs['df']
-        date_=kwargs['date']
-        gvkey=kwargs['gvkey']
-        df=df.loc[df['date']==date_ and df['gvkey']==gvkey]
+        df = kwargs['df']
+        date_= kwargs['date']
+        gvkey = kwargs['gvkey']
+        df = df.loc[df['date']==date_ and df['gvkey'] == gvkey]
         return dict(['open',df['open']],['high',df['high']],['low',df['low']],['close',df['close']],['volume',df['volume']])
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
         return None
-    s = Schema({
-        Required('df'): pd.DataFrame,
-        'date': datetime
-    })
-    try:
-        s(kwargs)
-        df = kwargs['df']
-        date_ = kwargs['date']
-        df = df.loc[df['date'] == date_]
-        return dict(['open', df['open']], ['high', df['high']], ['low', df['low']], ['close', df['close']],
-                    ['volume', df['volume']])
-    except MultipleInvalid as e:
-        print("error: input data is not valid".format(e.errors))
-        return None
-
 
 
 def MA(**kwargs):
@@ -183,6 +169,8 @@ def MA(**kwargs):
         return df.rolling_mean(df['close'],n)
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
+
+
 def EMA(**kwargs):
     """
     ExponentialMoving Average
@@ -200,6 +188,8 @@ def EMA(**kwargs):
         return df.ewma(df['close'],n)
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
+
+
 def ROC(**kwargs):
     """
     Rate of Change
@@ -217,6 +207,8 @@ def ROC(**kwargs):
         return df['close'].diff(n-1)/df['close'].shift(n-1)
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
+
+
 def get_history_tech_ind(**kwargs):
     """
     'technical indicator'
@@ -240,6 +232,7 @@ def get_history_tech_ind(**kwargs):
     except MultipleInvalid as e:
         print("error: input is not valid".format(e.errors))
 
+
 def ahead_behind(**kwargs):
     """
     select ahead or behind
@@ -259,6 +252,8 @@ def ahead_behind(**kwargs):
         return "ahead" if get_history_tech_ind(df,date,gvkey)['ROC_52week'] >0 else "behind"
     except MultipleInvalid as e:
         print("error: input data is not valid".format(e.errors))
+
+
 def increase_decrease(**kwargs):
     """
     select increase or decrease

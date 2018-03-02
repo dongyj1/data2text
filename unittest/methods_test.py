@@ -21,12 +21,12 @@ class TestMethods(unittest.TestCase):
         # d = {'open': '51.38', 'high': '51.83', 'low': '51.33', 'close': '51.74', 'volume': '1612698'}
         d = {'open': '53.04', 'high': '53.78', 'low': '52.72', 'close': '53.18', 'volume': '1717929'}
         try:
-            # self.assertIsInstance(res, dict)
-            # self.assertIsInstance(d, dict)
-            # self.assertEqual(res, d)
             self.assertDictEqual(res, d)
         except Exception as e:
             print(e)
+
+    def test_get_history_price(self):
+        pass
 
 
 if __name__ == '__main__':
