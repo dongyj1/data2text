@@ -2,7 +2,7 @@ import unittest, sys, io
 from src import methods
 import pandas
 
-df = pandas.read_csv('../src/datasets/stock_prices_info.csv')
+df = pandas.read_csv('../datasets/stock_prices_info.csv')
 
 
 class TestMethods(unittest.TestCase):

@@ -8,8 +8,8 @@ import num2words
 
 
 # Currently we only cover S&P 500
-company_info = pd.read_csv('./datasets/company_name_city.csv')
-
+company_info = pd.read_csv('../datasets/company_name_city.csv')
+df = pd.read_csv('../datasets/stock_prices_info.csv')
 
 def get_company_city(comp_id):
     """
@@ -66,12 +66,14 @@ def get_company_name(**kwargs):
         s(kwargs)
         df = kwargs['df']
         row_id = kwargs['row_id']
-        ticker = df.iloc[row_id]['ticker']
-        fullname = company_info.loc[company_info['tic'] == ticker]['conml'].name
+        # ticker = df.iloc[row_id]['ticker']
+        # fullname = str(company_info.loc[company_info['tic'] == ticker]['conml'])
+        fullname = df.iloc[row_id, :].Name
         return fullname
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
 
+# get_company_name(df=df, row_id=1)
 
 def get_price_in_dollar(**kwargs):
     """
@@ -204,9 +206,11 @@ def get_company_tic(**kwargs):
     try:
         s(kwargs)  # validate args
         df = kwargs['df']
-        ticker = list(df.groupby('ticker')['ticker'].head(1))
         row_id = kwargs['row_id']
-        return ticker[row_id]
+        # ticker = list(df.groupby('ticker')['ticker'].head(1))
+        # row_id = kwargs['row_id']
+        ticker = df.iloc[row_id, :].ticker
+        return ticker
 
     except MultipleInvalid as e:
         print("error: {} occur while parse with required args".format(e.errors))
